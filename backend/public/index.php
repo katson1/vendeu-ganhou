@@ -2,22 +2,30 @@
 
 declare(strict_types=1);
 
-$path = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';
-$method = strtoupper($_SERVER['REQUEST_METHOD'] ?? 'GET');
+require dirname(__DIR__) . '/src/bootstrap.php';
 
-header('Content-Type: application/json; charset=utf-8');
-header('Access-Control-Allow-Origin: *');
+use App\Config\Config;
+use App\Controllers\HealthController;
+use App\Http\ErrorHandler;
+use App\Http\Middleware\CorsMiddleware;
+use App\Http\Middleware\MiddlewareStack;
+use App\Http\Request;
+use App\Http\Response;
+use App\Http\Router;
+use App\Services\HealthService;
 
-if ($method === 'GET' && $path === '/health') {
-    http_response_code(200);
-    echo json_encode([
-        'status' => 'ok',
-        'service' => 'backend',
-    ], JSON_THROW_ON_ERROR);
-    exit;
-}
+$config = Config::fromEnvironment();
+(new ErrorHandler($config))->register();
 
-http_response_code(404);
-echo json_encode([
-    'error' => 'not_found',
-], JSON_THROW_ON_ERROR);
+$router = new Router();
+$router->get('/health', new HealthController(new HealthService()));
+
+$request = Request::fromGlobals();
+$middleware = new MiddlewareStack([new CorsMiddleware()]);
+
+$response = $middleware->handle(
+    $request,
+    static fn (Request $request): Response => $router->dispatch($request),
+);
+
+$response->send();
