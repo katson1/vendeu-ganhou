@@ -134,6 +134,77 @@ final class SaleService
         }
     }
 
+    public function cancel(string $externalId): array
+    {
+        $externalId = trim($externalId);
+
+        if ($externalId === '' || strlen($externalId) > 191) {
+            throw new HttpException(422, 'validation_error', 'external_id must be a non-empty string with at most 191 characters.');
+        }
+
+        $this->pdo->beginTransaction();
+
+        try {
+            $sale = $this->saleRepository->findByExternalIdForUpdate($externalId);
+
+            if ($sale === null) {
+                throw new HttpException(404, 'sale_not_found', 'Sale not found.');
+            }
+
+            $credit = $this->walletEntryRepository->findBySaleAndTypeForUpdate((int) $sale['id'], 'credit');
+
+            if ($credit === null) {
+                throw new \RuntimeException('Approved sale credit could not be found.');
+            }
+
+            $points = (int) $credit['points'];
+
+            if (($sale['status'] ?? null) === 'canceled') {
+                $this->pdo->commit();
+
+                return $this->present($sale, $points);
+            }
+
+            if (($sale['status'] ?? null) !== 'approved') {
+                throw new \RuntimeException('Sale has an unsupported status.');
+            }
+
+            $campaign = $this->campaignRepository->findByIdForUpdate((int) $sale['campaign_id']);
+
+            if ($campaign === null) {
+                throw new \RuntimeException('Sale campaign could not be found.');
+            }
+
+            $this->walletEntryRepository->createDebit([
+                'seller_id' => (int) $sale['seller_id'],
+                'campaign_id' => (int) $sale['campaign_id'],
+                'sale_id' => (int) $sale['id'],
+                'points' => $points,
+                'description' => sprintf('Sale %s canceled', $externalId),
+            ]);
+
+            $canceledSale = $this->saleRepository->markCanceled((int) $sale['id']);
+
+            if ($canceledSale === null || ($canceledSale['status'] ?? null) !== 'canceled') {
+                throw new \RuntimeException('Sale could not be canceled.');
+            }
+
+            if (!$this->campaignRepository->decrementBudget((int) $sale['campaign_id'], $points)) {
+                throw new HttpException(409, 'budget_inconsistent', 'Campaign budget cannot be reduced for this cancellation.');
+            }
+
+            $this->pdo->commit();
+
+            return $this->present($canceledSale, $points);
+        } catch (Throwable $exception) {
+            if ($this->pdo->inTransaction()) {
+                $this->pdo->rollBack();
+            }
+
+            throw $exception;
+        }
+    }
+
     /** @param array<string, mixed> $payload */
     /** @return array{external_id: string, campaign_id: int, seller_id: int, product_id: int, quantity: int, unit_value: string} */
     private function validate(array $payload): array

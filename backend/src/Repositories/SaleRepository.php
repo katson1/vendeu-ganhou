@@ -20,6 +20,30 @@ final class SaleRepository extends AbstractRepository
         return $sale === false ? null : $sale;
     }
 
+    /** @return array<string, mixed>|null */
+    public function findByExternalIdForUpdate(string $externalId): ?array
+    {
+        $statement = $this->execute(
+            'SELECT id, external_id, campaign_id, seller_id, product_id, quantity, unit_value, status, created_at FROM sales WHERE external_id = :external_id LIMIT 1 FOR UPDATE',
+            ['external_id' => $externalId],
+        );
+        $sale = $statement->fetch();
+
+        return $sale === false ? null : $sale;
+    }
+
+    /** @return array<string, mixed>|null */
+    public function findById(int $id): ?array
+    {
+        $statement = $this->execute(
+            'SELECT id, external_id, campaign_id, seller_id, product_id, quantity, unit_value, status, created_at FROM sales WHERE id = :id LIMIT 1',
+            ['id' => $id],
+        );
+        $sale = $statement->fetch();
+
+        return $sale === false ? null : $sale;
+    }
+
     /** @param array{external_id: string, campaign_id: int, seller_id: int, product_id: int, quantity: int, unit_value: string} $data */
     public function create(array $data): array
     {
@@ -43,6 +67,16 @@ final class SaleRepository extends AbstractRepository
         }
 
         return $sale;
+    }
+
+    public function markCanceled(int $id): ?array
+    {
+        $this->execute(
+            "UPDATE sales SET status = 'canceled' WHERE id = :id AND status = 'approved'",
+            ['id' => $id],
+        );
+
+        return $this->findById($id);
     }
 
     public static function isDuplicateExternalId(PDOException $exception): bool

@@ -52,6 +52,20 @@ final class CampaignRepository extends AbstractRepository
         return $statement->rowCount() === 1;
     }
 
+    public function decrementBudget(int $id, int $points): bool
+    {
+        $statement = $this->execute(
+            'UPDATE campaigns SET budget_used = budget_used - :points_decrement WHERE id = :id AND budget_used >= :points_check',
+            [
+                'id' => $id,
+                'points_decrement' => $points,
+                'points_check' => $points,
+            ],
+        );
+
+        return $statement->rowCount() === 1;
+    }
+
     /** @param array{name: string, budget_total: int, starts_at: string, ends_at: string, status: string} $data */
     public function create(array $data): array
     {

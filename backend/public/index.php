@@ -159,6 +159,13 @@ $router->post('/sales', static function (Request $request, array $parameters) us
     );
 });
 
+$router->post('/sales/{external_id}/cancel', static function (Request $request, array $parameters) use ($adminOnly, $resolveSaleController): Response {
+    return $adminOnly->handle(
+        $request,
+        static fn (Request $request): Response => $resolveSaleController()->cancel($request, $parameters),
+    );
+});
+
 $request = Request::fromGlobals();
 $middleware = new MiddlewareStack([new CorsMiddleware()]);
 

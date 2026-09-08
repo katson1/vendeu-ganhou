@@ -24,4 +24,12 @@ final class SaleController
             $result['idempotent'] ? 200 : 201,
         );
     }
+
+    /** @param array<string, string> $parameters */
+    public function cancel(Request $request, array $parameters): Response
+    {
+        return Response::json([
+            'sale' => $this->saleService->cancel($parameters['external_id'] ?? ''),
+        ]);
+    }
 }
