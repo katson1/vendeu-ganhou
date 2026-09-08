@@ -17,6 +17,8 @@ final class Config
     {
         return new self([
             'APP_ENV' => self::environment('APP_ENV', 'local'),
+            'JWT_SECRET' => self::environment('JWT_SECRET', 'local-only-change-this-jwt-secret-before-production'),
+            'JWT_TTL' => self::environment('JWT_TTL', '3600'),
             'DB_HOST' => self::environment('DB_HOST', 'database'),
             'DB_PORT' => self::environment('DB_PORT', '3306'),
             'DB_DATABASE' => self::environment('DB_DATABASE', 'vendeu_ganhou'),

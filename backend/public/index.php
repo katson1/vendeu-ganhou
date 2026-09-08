@@ -2,23 +2,36 @@
 
 declare(strict_types=1);
 
+require dirname(__DIR__) . '/vendor/autoload.php';
 require dirname(__DIR__) . '/src/bootstrap.php';
 
 use App\Config\Config;
 use App\Controllers\HealthController;
+use App\Controllers\AuthController;
+use App\Database\PdoConnection;
 use App\Http\ErrorHandler;
 use App\Http\Middleware\CorsMiddleware;
 use App\Http\Middleware\MiddlewareStack;
 use App\Http\Request;
 use App\Http\Response;
 use App\Http\Router;
+use App\Repositories\UserRepository;
 use App\Services\HealthService;
+use App\Services\AuthService;
+use App\Services\JwtService;
 
 $config = Config::fromEnvironment();
 (new ErrorHandler($config))->register();
 
 $router = new Router();
 $router->get('/health', new HealthController(new HealthService()));
+$router->post('/auth/login', static function (Request $request, array $parameters) use ($config): Response {
+    $connection = new PdoConnection($config);
+    $userRepository = new UserRepository($connection->get());
+    $authService = new AuthService($userRepository, new JwtService($config));
+
+    return (new AuthController($authService))($request, $parameters);
+});
 
 $request = Request::fromGlobals();
 $middleware = new MiddlewareStack([new CorsMiddleware()]);
