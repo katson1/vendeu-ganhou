@@ -6,10 +6,13 @@ require dirname(__DIR__) . '/vendor/autoload.php';
 require dirname(__DIR__) . '/src/bootstrap.php';
 
 use App\Config\Config;
+use App\Controllers\AccessController;
 use App\Controllers\HealthController;
 use App\Controllers\AuthController;
 use App\Database\PdoConnection;
 use App\Http\ErrorHandler;
+use App\Http\Middleware\AdminMiddleware;
+use App\Http\Middleware\AuthMiddleware;
 use App\Http\Middleware\CorsMiddleware;
 use App\Http\Middleware\MiddlewareStack;
 use App\Http\Request;
@@ -31,6 +34,26 @@ $router->post('/auth/login', static function (Request $request, array $parameter
     $authService = new AuthService($userRepository, new JwtService($config));
 
     return (new AuthController($authService))($request, $parameters);
+});
+
+$jwtService = new JwtService($config);
+$authMiddleware = new AuthMiddleware($jwtService);
+$authenticated = new MiddlewareStack([$authMiddleware]);
+$adminOnly = new MiddlewareStack([$authMiddleware, new AdminMiddleware()]);
+$accessController = new AccessController();
+
+$router->get('/me', static function (Request $request, array $parameters) use ($authenticated, $accessController): Response {
+    return $authenticated->handle(
+        $request,
+        static fn (Request $request): Response => $accessController->currentUser($request, $parameters),
+    );
+});
+
+$router->get('/admin/health', static function (Request $request, array $parameters) use ($adminOnly, $accessController): Response {
+    return $adminOnly->handle(
+        $request,
+        static fn (Request $request): Response => $accessController->adminHealth($request, $parameters),
+    );
 });
 
 $request = Request::fromGlobals();

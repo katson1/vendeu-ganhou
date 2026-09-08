@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Middleware;
 
+use App\Auth\AuthenticatedUser;
 use App\Http\Exceptions\HttpException;
 use App\Http\Request;
 use App\Http\Response;
@@ -23,7 +24,8 @@ final class AuthMiddleware implements MiddlewareInterface
             throw new HttpException(401, 'unauthorized', 'Authentication is required.');
         }
 
-        $request->setAttribute('auth', $this->jwtService->decode($matches[1]));
+        $claims = $this->jwtService->decode($matches[1]);
+        $request->setAttribute('current_user', AuthenticatedUser::fromClaims($claims));
 
         return $next($request);
     }
