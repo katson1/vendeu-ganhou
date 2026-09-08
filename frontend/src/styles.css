@@ -511,6 +511,115 @@ tbody tr:last-child td {
   border: 0;
 }
 
+.seller-shell {
+  width: min(100%, 1080px);
+  min-height: 100vh;
+  margin: 0 auto;
+  padding: 40px 24px 64px;
+}
+
+.seller-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 28px;
+}
+
+.seller-header h1 {
+  font-size: clamp(2.4rem, 6vw, 4.5rem);
+}
+
+.seller-header .description {
+  max-width: 620px;
+  margin-bottom: 0;
+}
+
+.balance-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 24px;
+  padding: 30px;
+  border-radius: 20px;
+  color: #fff;
+  background: linear-gradient(135deg, #155e4d, #198267);
+  box-shadow: 0 14px 36px rgba(25, 130, 103, 0.22);
+}
+
+.balance-card .eyebrow {
+  margin-bottom: 8px;
+  color: #bcead7;
+}
+
+.balance-card h2 {
+  margin: 0;
+  font-size: clamp(2.4rem, 8vw, 4rem);
+  line-height: 1;
+}
+
+.balance-card h2 span {
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.balance-note {
+  max-width: 220px;
+  margin: 0;
+  color: #d8f4e8;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  text-align: right;
+}
+
+.ledger-panel {
+  min-height: 260px;
+}
+
+.ledger-type {
+  display: inline-flex;
+  padding: 5px 8px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 800;
+}
+
+.ledger-credit,
+.points-credit {
+  color: #176b4f;
+}
+
+.ledger-credit {
+  background: #e4f5ec;
+}
+
+.ledger-debit,
+.points-debit {
+  color: #9f3838;
+}
+
+.ledger-debit {
+  background: #fff0f0;
+}
+
+.wallet-empty {
+  padding: 28px 16px;
+  border: 1px dashed #b9d4ca;
+  border-radius: 14px;
+  background: #fbfefd;
+  text-align: center;
+}
+
+.wallet-empty .description {
+  margin-bottom: 0;
+  font-size: 0.95rem;
+}
+
+.wallet-error {
+  width: min(100%, 640px);
+}
+
 @media (max-width: 560px) {
   .card {
     padding: 32px 24px;
@@ -525,7 +634,12 @@ tbody tr:last-child td {
     padding: 28px 16px 48px;
   }
 
+  .seller-shell {
+    padding: 28px 16px 48px;
+  }
+
   .admin-header,
+  .seller-header,
   .section-heading {
     flex-direction: column;
   }
@@ -556,5 +670,16 @@ tbody tr:last-child td {
 
   .sale-summary dl {
     grid-template-columns: 1fr;
+  }
+
+  .balance-card {
+    align-items: flex-start;
+    flex-direction: column;
+    padding: 24px;
+  }
+
+  .balance-note {
+    max-width: none;
+    text-align: left;
   }
 }

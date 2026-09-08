@@ -3,7 +3,8 @@ import { createRoot } from 'react-dom/client';
 import { AuthProvider, useAuth } from './auth/AuthContext';
 import { AdminPage } from './pages/AdminPage';
 import { LoginPage } from './pages/LoginPage';
-import { ForbiddenPage, ProtectedArea } from './pages/ProtectedArea';
+import { ForbiddenPage } from './pages/ProtectedArea';
+import { SellerPage } from './pages/SellerPage';
 import { Redirect, navigate, usePathname } from './router';
 import './styles.css';
 
@@ -92,11 +93,7 @@ function AppRouter() {
   if (path === '/seller') {
     return (
       <ProtectedRoute role="seller">
-        <ProtectedArea
-          role="seller"
-          title="Área do seller"
-          description="A autenticação está pronta. A carteira e o extrato serão exibidos na etapa de wallet."
-        />
+        <SellerPage />
       </ProtectedRoute>
     );
   }

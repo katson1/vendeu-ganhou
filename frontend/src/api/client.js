@@ -116,6 +116,10 @@ export const api = {
     });
   },
 
+  wallet(token) {
+    return request('/me/wallet', { token });
+  },
+
   health() {
     return request('/health');
   },
