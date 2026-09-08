@@ -1,6 +1,7 @@
 import { StrictMode, useEffect } from 'react';
 import { createRoot } from 'react-dom/client';
 import { AuthProvider, useAuth } from './auth/AuthContext';
+import { AdminPage } from './pages/AdminPage';
 import { LoginPage } from './pages/LoginPage';
 import { ForbiddenPage, ProtectedArea } from './pages/ProtectedArea';
 import { Redirect, navigate, usePathname } from './router';
@@ -83,11 +84,7 @@ function AppRouter() {
   if (path === '/admin') {
     return (
       <ProtectedRoute role="admin">
-        <ProtectedArea
-          role="admin"
-          title="Área administrativa"
-          description="A autenticação está pronta. O gerenciamento de produtos, campanhas e vendas entra na próxima etapa."
-        />
+        <AdminPage />
       </ProtectedRoute>
     );
   }

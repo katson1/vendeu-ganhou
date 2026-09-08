@@ -62,6 +62,60 @@ export const api = {
     return request('/me', { token });
   },
 
+  products(token) {
+    return request('/products', { token });
+  },
+
+  createProduct(token, product) {
+    return request('/products', {
+      method: 'POST',
+      token,
+      body: product,
+    });
+  },
+
+  updateProduct(token, id, product) {
+    return request(`/products/${id}`, {
+      method: 'PUT',
+      token,
+      body: product,
+    });
+  },
+
+  deactivateProduct(token, id) {
+    return request(`/products/${id}`, {
+      method: 'DELETE',
+      token,
+    });
+  },
+
+  campaigns(token) {
+    return request('/campaigns', { token });
+  },
+
+  createCampaign(token, campaign) {
+    return request('/campaigns', {
+      method: 'POST',
+      token,
+      body: campaign,
+    });
+  },
+
+  createSale(token, sale) {
+    return request('/sales', {
+      method: 'POST',
+      token,
+      body: sale,
+    });
+  },
+
+  cancelSale(token, externalId) {
+    return request(`/sales/${encodeURIComponent(externalId)}/cancel`, {
+      method: 'POST',
+      token,
+    });
+  },
+
   health() {
     return request('/health');
   },

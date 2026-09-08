@@ -16,7 +16,8 @@ body {
 }
 
 button,
-input {
+input,
+select {
   font: inherit;
 }
 
@@ -139,6 +140,15 @@ button:hover:not(:disabled) {
   background: #fff3f3;
 }
 
+.success-message {
+  margin: 0;
+  padding: 12px 14px;
+  border: 1px solid #a8d9c2;
+  border-radius: 10px;
+  color: #176b4f;
+  background: #effaf4;
+}
+
 .area-header,
 .action-row {
   display: flex;
@@ -152,6 +162,355 @@ button:hover:not(:disabled) {
   margin-top: 28px;
 }
 
+.admin-shell {
+  width: min(100%, 1440px);
+  min-height: 100vh;
+  margin: 0 auto;
+  padding: 40px 24px 64px;
+}
+
+.admin-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 28px;
+}
+
+.admin-header h1 {
+  font-size: clamp(2.4rem, 6vw, 4.5rem);
+}
+
+.admin-header .description {
+  max-width: 640px;
+  margin-bottom: 0;
+}
+
+.admin-user {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-top: 12px;
+  color: #315a52;
+  font-weight: 700;
+}
+
+.page-message {
+  margin-bottom: 20px;
+}
+
+.admin-sections {
+  display: grid;
+  gap: 24px;
+}
+
+.panel {
+  min-width: 0;
+  padding: 28px;
+  border: 1px solid #cfe3db;
+  border-radius: 20px;
+  background: #fff;
+  box-shadow: 0 12px 36px rgba(24, 49, 47, 0.08);
+}
+
+.panel-wide {
+  width: 100%;
+}
+
+.loading-panel {
+  color: #53716c;
+}
+
+.section-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.section-heading h2 {
+  margin: 0;
+  font-size: 1.8rem;
+}
+
+.section-heading .eyebrow {
+  margin-bottom: 6px;
+}
+
+.section-count {
+  padding: 7px 10px;
+  border-radius: 999px;
+  color: #53716c;
+  background: #eef6f2;
+  font-size: 0.85rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.section-layout {
+  display: grid;
+  grid-template-columns: minmax(240px, 0.8fr) minmax(0, 1.6fr);
+  gap: 28px;
+  align-items: start;
+}
+
+.admin-form,
+.cancel-form {
+  display: grid;
+  gap: 9px;
+}
+
+.admin-form h3,
+.sale-result h3 {
+  margin: 0 0 8px;
+  color: #18312f;
+  font-size: 1.1rem;
+}
+
+.admin-form label,
+.cancel-form label {
+  color: #315a52;
+  font-size: 0.86rem;
+  font-weight: 700;
+}
+
+.admin-form input,
+.admin-form select,
+.cancel-form input {
+  width: 100%;
+  min-width: 0;
+  padding: 11px 12px;
+  border: 1px solid #b9d4ca;
+  border-radius: 9px;
+  color: #18312f;
+  background: #fbfefd;
+}
+
+.admin-form input:focus,
+.admin-form select:focus,
+.cancel-form input:focus {
+  outline: 3px solid rgba(25, 130, 103, 0.18);
+  border-color: #198267;
+}
+
+.admin-form button,
+.cancel-form button {
+  margin-top: 10px;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.checkbox-label input {
+  width: auto;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.form-grid > div {
+  display: grid;
+  gap: 9px;
+}
+
+.field-help {
+  margin: -2px 0 8px;
+  color: #6b8780;
+  font-size: 0.8rem;
+  line-height: 1.4;
+}
+
+.table-wrap {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+th,
+td {
+  padding: 12px 10px;
+  border-bottom: 1px solid #e4efea;
+  text-align: left;
+  vertical-align: middle;
+}
+
+th {
+  color: #53716c;
+  font-size: 0.75rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.table-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.small-button {
+  padding: 7px 10px;
+  font-size: 0.78rem;
+}
+
+.danger-button {
+  color: #fff;
+  background: #bd4d4d;
+}
+
+.danger-button:hover:not(:disabled) {
+  background: #9f3838;
+}
+
+.status-pill {
+  display: inline-flex;
+  padding: 5px 8px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.status-active {
+  color: #176b4f;
+  background: #e4f5ec;
+}
+
+.status-inactive {
+  color: #7e4a26;
+  background: #fff0df;
+}
+
+.empty-cell,
+.empty-state {
+  color: #6b8780;
+  text-align: center;
+}
+
+.empty-state {
+  margin: 20px 0 0;
+}
+
+.campaign-list {
+  display: grid;
+  gap: 12px;
+  margin-top: 28px;
+}
+
+.campaign-card {
+  padding: 16px;
+  border: 1px solid #d8e9e1;
+  border-radius: 14px;
+  background: #fbfefd;
+}
+
+.campaign-title {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.campaign-title h3 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.budget-label,
+.campaign-remaining,
+.campaign-period {
+  margin: 12px 0 0;
+  color: #53716c;
+  font-size: 0.86rem;
+}
+
+.budget-track {
+  height: 9px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #dcece5;
+}
+
+.budget-track span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: #198267;
+}
+
+.campaign-period {
+  font-size: 0.76rem;
+}
+
+.sale-layout {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.sale-result {
+  min-width: 0;
+  padding: 20px;
+  border: 1px solid #d8e9e1;
+  border-radius: 14px;
+  background: #fbfefd;
+}
+
+.sale-summary {
+  margin-top: 24px;
+  padding-top: 18px;
+  border-top: 1px solid #d8e9e1;
+}
+
+.sale-summary .eyebrow {
+  margin-bottom: 8px;
+}
+
+.sale-summary p {
+  margin: 0;
+}
+
+.sale-summary dl {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin: 18px 0 0;
+}
+
+.sale-summary dt {
+  color: #6b8780;
+  font-size: 0.76rem;
+}
+
+.sale-summary dd {
+  margin: 4px 0 0;
+  font-weight: 800;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 @media (max-width: 560px) {
   .card {
     padding: 32px 24px;
@@ -160,5 +519,42 @@ button:hover:not(:disabled) {
   .area-header {
     align-items: flex-start;
     flex-direction: column;
+  }
+
+  .admin-shell {
+    padding: 28px 16px 48px;
+  }
+
+  .admin-header,
+  .section-heading {
+    flex-direction: column;
+  }
+
+  .admin-user {
+    padding-top: 0;
+  }
+
+  .panel {
+    padding: 20px;
+  }
+
+  .section-layout,
+  .sale-layout,
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .table-wrap {
+    margin: 0 -8px;
+  }
+
+  th,
+  td {
+    padding-right: 8px;
+    padding-left: 8px;
+  }
+
+  .sale-summary dl {
+    grid-template-columns: 1fr;
   }
 }
