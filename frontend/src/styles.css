@@ -15,6 +15,20 @@ body {
   min-width: 320px;
 }
 
+button,
+input {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: wait;
+  opacity: 0.7;
+}
+
 .shell {
   display: grid;
   min-height: 100vh;
@@ -29,6 +43,14 @@ body {
   border-radius: 24px;
   background: #fff;
   box-shadow: 0 18px 50px rgba(24, 49, 47, 0.1);
+}
+
+.auth-card {
+  width: min(100%, 480px);
+}
+
+.area-card {
+  width: min(100%, 720px);
 }
 
 .eyebrow {
@@ -58,4 +80,85 @@ h1 {
   padding: 10px 14px;
   border-radius: 999px;
   background: #eef6f2;
+}
+
+.login-form {
+  display: grid;
+  gap: 10px;
+  margin-top: 32px;
+}
+
+.login-form label {
+  color: #315a52;
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.login-form input {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid #b9d4ca;
+  border-radius: 10px;
+  color: #18312f;
+  background: #fbfefd;
+}
+
+.login-form input:focus {
+  outline: 3px solid rgba(25, 130, 103, 0.18);
+  border-color: #198267;
+}
+
+button {
+  border: 0;
+  border-radius: 10px;
+  padding: 12px 18px;
+  color: #fff;
+  background: #198267;
+  font-weight: 800;
+}
+
+button:hover:not(:disabled) {
+  background: #126b55;
+}
+
+.secondary-button {
+  color: #315a52;
+  background: #e7f2ed;
+}
+
+.secondary-button:hover:not(:disabled) {
+  background: #d7e9e1;
+}
+
+.error-message {
+  margin: 8px 0;
+  padding: 12px 14px;
+  border: 1px solid #f1b8b8;
+  border-radius: 10px;
+  color: #9f2f2f;
+  background: #fff3f3;
+}
+
+.area-header,
+.action-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.action-row {
+  justify-content: flex-start;
+  margin-top: 28px;
+}
+
+@media (max-width: 560px) {
+  .card {
+    padding: 32px 24px;
+  }
+
+  .area-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
 }

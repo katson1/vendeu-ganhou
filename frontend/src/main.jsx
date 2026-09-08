@@ -1,35 +1,121 @@
-import { StrictMode, useEffect, useState } from 'react';
+import { StrictMode, useEffect } from 'react';
 import { createRoot } from 'react-dom/client';
+import { AuthProvider, useAuth } from './auth/AuthContext';
+import { LoginPage } from './pages/LoginPage';
+import { ForbiddenPage, ProtectedArea } from './pages/ProtectedArea';
+import { Redirect, navigate, usePathname } from './router';
 import './styles.css';
 
-const apiUrl = import.meta.env.VITE_API_URL ?? 'http://localhost:8080';
+function LoadingScreen() {
+  return (
+    <main className="shell">
+      <section className="card" aria-live="polite">
+        <p className="eyebrow">Vendeu, Ganhou</p>
+        <h1>Validando sessão…</h1>
+        <p className="description">Aguarde enquanto confirmamos seu acesso.</p>
+      </section>
+    </main>
+  );
+}
 
-function App() {
-  const [backendStatus, setBackendStatus] = useState('checking');
-
-  useEffect(() => {
-    fetch(`${apiUrl}/health`)
-      .then((response) => {
-        if (!response.ok) throw new Error('health check failed');
-        return response.json();
-      })
-      .then(() => setBackendStatus('online'))
-      .catch(() => setBackendStatus('offline'));
-  }, []);
+function NotFoundPage() {
+  const { user, logout } = useAuth();
 
   return (
     <main className="shell">
-      <section className="card" aria-labelledby="title">
-        <p className="eyebrow">Bootstrap concluído</p>
-        <h1 id="title">Vendeu, Ganhou</h1>
-        <p className="description">
-          Plataforma enxuta de incentivo de vendas.
-        </p>
-        <p className="status" role="status">
-          Backend: <strong>{backendStatus}</strong>
-        </p>
+      <section className="card area-card" aria-labelledby="not-found-title">
+        <p className="eyebrow">404</p>
+        <h1 id="not-found-title">Página não encontrada</h1>
+        <p className="description">Esta rota ainda não faz parte da etapa atual.</p>
+        <div className="action-row">
+          <button type="button" onClick={() => navigate(user.role === 'admin' ? '/admin' : '/seller')}>Voltar</button>
+          <button className="secondary-button" type="button" onClick={() => { logout(); navigate('/login', { replace: true }); }}>Sair</button>
+        </div>
       </section>
     </main>
+  );
+}
+
+function ProtectedRoute({ role, children }) {
+  const { status, user } = useAuth();
+
+  if (status === 'loading') {
+    return <LoadingScreen />;
+  }
+
+  if (status !== 'authenticated' || !user) {
+    return <Redirect to="/login" />;
+  }
+
+  if (user.role !== role) {
+    return <ForbiddenPage />;
+  }
+
+  return children;
+}
+
+function AppRouter() {
+  const path = usePathname();
+  const { status, user } = useAuth();
+
+  useEffect(() => {
+    if (status === 'anonymous' && path !== '/login') {
+      navigate('/login', { replace: true });
+    }
+  }, [path, status]);
+
+  if (status === 'loading') {
+    return <LoadingScreen />;
+  }
+
+  if (path === '/login') {
+    return status === 'authenticated' && user
+      ? <Redirect to={user.role === 'admin' ? '/admin' : '/seller'} />
+      : <LoginPage />;
+  }
+
+  if (path === '/') {
+    return status === 'authenticated' && user
+      ? <Redirect to={user.role === 'admin' ? '/admin' : '/seller'} />
+      : <Redirect to="/login" />;
+  }
+
+  if (path === '/admin') {
+    return (
+      <ProtectedRoute role="admin">
+        <ProtectedArea
+          role="admin"
+          title="Área administrativa"
+          description="A autenticação está pronta. O gerenciamento de produtos, campanhas e vendas entra na próxima etapa."
+        />
+      </ProtectedRoute>
+    );
+  }
+
+  if (path === '/seller') {
+    return (
+      <ProtectedRoute role="seller">
+        <ProtectedArea
+          role="seller"
+          title="Área do seller"
+          description="A autenticação está pronta. A carteira e o extrato serão exibidos na etapa de wallet."
+        />
+      </ProtectedRoute>
+    );
+  }
+
+  if (status !== 'authenticated' || !user) {
+    return <Redirect to="/login" />;
+  }
+
+  return <NotFoundPage />;
+}
+
+function App() {
+  return (
+    <AuthProvider>
+      <AppRouter />
+    </AuthProvider>
   );
 }
 
