@@ -9,6 +9,7 @@ use App\Config\Config;
 use App\Controllers\AccessController;
 use App\Controllers\HealthController;
 use App\Controllers\AuthController;
+use App\Controllers\ProductController;
 use App\Database\PdoConnection;
 use App\Http\ErrorHandler;
 use App\Http\Middleware\AdminMiddleware;
@@ -19,9 +20,11 @@ use App\Http\Request;
 use App\Http\Response;
 use App\Http\Router;
 use App\Repositories\UserRepository;
+use App\Repositories\ProductRepository;
 use App\Services\HealthService;
 use App\Services\AuthService;
 use App\Services\JwtService;
+use App\Services\ProductService;
 
 $config = Config::fromEnvironment();
 (new ErrorHandler($config))->register();
@@ -53,6 +56,46 @@ $router->get('/admin/health', static function (Request $request, array $paramete
     return $adminOnly->handle(
         $request,
         static fn (Request $request): Response => $accessController->adminHealth($request, $parameters),
+    );
+});
+
+$resolveProductController = static function () use ($config): ProductController {
+    static $controller = null;
+
+    if (!$controller instanceof ProductController) {
+        $connection = new PdoConnection($config);
+        $service = new ProductService(new ProductRepository($connection->get()));
+        $controller = new ProductController($service);
+    }
+
+    return $controller;
+};
+
+$router->get('/products', static function (Request $request, array $parameters) use ($adminOnly, $resolveProductController): Response {
+    return $adminOnly->handle(
+        $request,
+        static fn (Request $request): Response => $resolveProductController()->index($request, $parameters),
+    );
+});
+
+$router->post('/products', static function (Request $request, array $parameters) use ($adminOnly, $resolveProductController): Response {
+    return $adminOnly->handle(
+        $request,
+        static fn (Request $request): Response => $resolveProductController()->store($request, $parameters),
+    );
+});
+
+$router->put('/products/{id}', static function (Request $request, array $parameters) use ($adminOnly, $resolveProductController): Response {
+    return $adminOnly->handle(
+        $request,
+        static fn (Request $request): Response => $resolveProductController()->update($request, $parameters),
+    );
+});
+
+$router->delete('/products/{id}', static function (Request $request, array $parameters) use ($adminOnly, $resolveProductController): Response {
+    return $adminOnly->handle(
+        $request,
+        static fn (Request $request): Response => $resolveProductController()->destroy($request, $parameters),
     );
 });
 
