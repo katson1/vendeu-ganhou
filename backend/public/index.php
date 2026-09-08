@@ -7,6 +7,7 @@ require dirname(__DIR__) . '/src/bootstrap.php';
 
 use App\Config\Config;
 use App\Controllers\AccessController;
+use App\Controllers\CampaignController;
 use App\Controllers\HealthController;
 use App\Controllers\AuthController;
 use App\Controllers\ProductController;
@@ -21,10 +22,12 @@ use App\Http\Response;
 use App\Http\Router;
 use App\Repositories\UserRepository;
 use App\Repositories\ProductRepository;
+use App\Repositories\CampaignRepository;
 use App\Services\HealthService;
 use App\Services\AuthService;
 use App\Services\JwtService;
 use App\Services\ProductService;
+use App\Services\CampaignService;
 
 $config = Config::fromEnvironment();
 (new ErrorHandler($config))->register();
@@ -96,6 +99,32 @@ $router->delete('/products/{id}', static function (Request $request, array $para
     return $adminOnly->handle(
         $request,
         static fn (Request $request): Response => $resolveProductController()->destroy($request, $parameters),
+    );
+});
+
+$resolveCampaignController = static function () use ($config): CampaignController {
+    static $controller = null;
+
+    if (!$controller instanceof CampaignController) {
+        $connection = new PdoConnection($config);
+        $service = new CampaignService(new CampaignRepository($connection->get()));
+        $controller = new CampaignController($service);
+    }
+
+    return $controller;
+};
+
+$router->get('/campaigns', static function (Request $request, array $parameters) use ($adminOnly, $resolveCampaignController): Response {
+    return $adminOnly->handle(
+        $request,
+        static fn (Request $request): Response => $resolveCampaignController()->index($request, $parameters),
+    );
+});
+
+$router->post('/campaigns', static function (Request $request, array $parameters) use ($adminOnly, $resolveCampaignController): Response {
+    return $adminOnly->handle(
+        $request,
+        static fn (Request $request): Response => $resolveCampaignController()->store($request, $parameters),
     );
 });
 
