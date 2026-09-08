@@ -7,7 +7,6 @@ namespace App\Services;
 use App\Http\Exceptions\HttpException;
 use App\Repositories\CampaignRepository;
 use DateTimeImmutable;
-use DateTimeInterface;
 
 final class CampaignService
 {

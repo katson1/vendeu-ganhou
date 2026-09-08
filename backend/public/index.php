@@ -11,6 +11,7 @@ use App\Controllers\CampaignController;
 use App\Controllers\HealthController;
 use App\Controllers\AuthController;
 use App\Controllers\ProductController;
+use App\Controllers\SaleController;
 use App\Database\PdoConnection;
 use App\Http\ErrorHandler;
 use App\Http\Middleware\AdminMiddleware;
@@ -23,11 +24,14 @@ use App\Http\Router;
 use App\Repositories\UserRepository;
 use App\Repositories\ProductRepository;
 use App\Repositories\CampaignRepository;
+use App\Repositories\SaleRepository;
+use App\Repositories\WalletEntryRepository;
 use App\Services\HealthService;
 use App\Services\AuthService;
 use App\Services\JwtService;
 use App\Services\ProductService;
 use App\Services\CampaignService;
+use App\Services\SaleService;
 
 $config = Config::fromEnvironment();
 (new ErrorHandler($config))->register();
@@ -125,6 +129,33 @@ $router->post('/campaigns', static function (Request $request, array $parameters
     return $adminOnly->handle(
         $request,
         static fn (Request $request): Response => $resolveCampaignController()->store($request, $parameters),
+    );
+});
+
+$resolveSaleController = static function () use ($config): SaleController {
+    static $controller = null;
+
+    if (!$controller instanceof SaleController) {
+        $connection = new PdoConnection($config);
+        $pdo = $connection->get();
+        $service = new SaleService(
+            $pdo,
+            new SaleRepository($pdo),
+            new UserRepository($pdo),
+            new ProductRepository($pdo),
+            new CampaignRepository($pdo),
+            new WalletEntryRepository($pdo),
+        );
+        $controller = new SaleController($service);
+    }
+
+    return $controller;
+};
+
+$router->post('/sales', static function (Request $request, array $parameters) use ($adminOnly, $resolveSaleController): Response {
+    return $adminOnly->handle(
+        $request,
+        static fn (Request $request): Response => $resolveSaleController()->store($request, $parameters),
     );
 });
 
