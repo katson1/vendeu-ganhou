@@ -12,12 +12,14 @@ use App\Controllers\HealthController;
 use App\Controllers\AuthController;
 use App\Controllers\ProductController;
 use App\Controllers\SaleController;
+use App\Controllers\WalletController;
 use App\Database\PdoConnection;
 use App\Http\ErrorHandler;
 use App\Http\Middleware\AdminMiddleware;
 use App\Http\Middleware\AuthMiddleware;
 use App\Http\Middleware\CorsMiddleware;
 use App\Http\Middleware\MiddlewareStack;
+use App\Http\Middleware\SellerMiddleware;
 use App\Http\Request;
 use App\Http\Response;
 use App\Http\Router;
@@ -32,6 +34,7 @@ use App\Services\JwtService;
 use App\Services\ProductService;
 use App\Services\CampaignService;
 use App\Services\SaleService;
+use App\Services\WalletService;
 
 $config = Config::fromEnvironment();
 (new ErrorHandler($config))->register();
@@ -50,6 +53,7 @@ $jwtService = new JwtService($config);
 $authMiddleware = new AuthMiddleware($jwtService);
 $authenticated = new MiddlewareStack([$authMiddleware]);
 $adminOnly = new MiddlewareStack([$authMiddleware, new AdminMiddleware()]);
+$sellerOnly = new MiddlewareStack([$authMiddleware, new SellerMiddleware()]);
 $accessController = new AccessController();
 
 $router->get('/me', static function (Request $request, array $parameters) use ($authenticated, $accessController): Response {
@@ -163,6 +167,25 @@ $router->post('/sales/{external_id}/cancel', static function (Request $request, 
     return $adminOnly->handle(
         $request,
         static fn (Request $request): Response => $resolveSaleController()->cancel($request, $parameters),
+    );
+});
+
+$resolveWalletController = static function () use ($config): WalletController {
+    static $controller = null;
+
+    if (!$controller instanceof WalletController) {
+        $connection = new PdoConnection($config);
+        $pdo = $connection->get();
+        $controller = new WalletController(new WalletService(new WalletEntryRepository($pdo)));
+    }
+
+    return $controller;
+};
+
+$router->get('/me/wallet', static function (Request $request, array $parameters) use ($sellerOnly, $resolveWalletController): Response {
+    return $sellerOnly->handle(
+        $request,
+        static fn (Request $request): Response => $resolveWalletController()->show($request, $parameters),
     );
 });
 

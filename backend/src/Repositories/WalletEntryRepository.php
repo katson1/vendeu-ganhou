@@ -6,6 +6,25 @@ namespace App\Repositories;
 
 final class WalletEntryRepository extends AbstractRepository
 {
+    public function balanceForSeller(int $sellerId): int
+    {
+        $statement = $this->execute(
+            "SELECT COALESCE(SUM(CASE WHEN type = 'credit' THEN points ELSE 0 END), 0) - COALESCE(SUM(CASE WHEN type = 'debit' THEN points ELSE 0 END), 0) AS balance FROM wallet_entries WHERE seller_id = :seller_id",
+            ['seller_id' => $sellerId],
+        );
+
+        return (int) $statement->fetchColumn();
+    }
+
+    /** @return list<array<string, mixed>> */
+    public function listForSeller(int $sellerId): array
+    {
+        return $this->execute(
+            'SELECT id, campaign_id, sale_id, type, points, description, created_at FROM wallet_entries WHERE seller_id = :seller_id ORDER BY created_at DESC, id DESC',
+            ['seller_id' => $sellerId],
+        )->fetchAll();
+    }
+
     /** @return array<string, mixed>|null */
     public function findBySaleAndTypeForUpdate(int $saleId, string $type): ?array
     {
