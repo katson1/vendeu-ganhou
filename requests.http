@@ -1,0 +1,156 @@
+@baseUrl = http://localhost:8080
+@adminEmail = admin@vendeu.local
+@adminPassword = admin-local-2026
+@sellerEmail = seller1@vendeu.local
+@sellerPassword = seller-local-2026
+
+# Em um ambiente limpo, o seed usa seller_id=2, product_id=1 e campaign_id=1.
+# Atualize os IDs conforme as respostas quando trabalhar com dados existentes.
+@sellerId = 2
+@productId = 1
+@saleProductId = 2
+@campaignId = 1
+@externalId = manual-sale-1001
+@adminToken = paste-admin-token-here
+@sellerToken = paste-seller-token-here
+
+### Healthcheck
+GET {{baseUrl}}/health
+
+### Login admin
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "{{adminEmail}}",
+  "password": "{{adminPassword}}"
+}
+
+### Usuário admin autenticado
+GET {{baseUrl}}/me
+Authorization: Bearer {{adminToken}}
+
+### ACL admin
+GET {{baseUrl}}/admin/health
+Authorization: Bearer {{adminToken}}
+
+### Listar produtos
+GET {{baseUrl}}/products
+Authorization: Bearer {{adminToken}}
+
+### Criar produto
+POST {{baseUrl}}/products
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "name": "Produto HTTP",
+  "sku": "HTTP-001",
+  "points_per_unit": 15
+}
+
+### Editar produto
+PUT {{baseUrl}}/products/{{productId}}
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "name": "Produto atualizado",
+  "sku": "PROD-A",
+  "points_per_unit": 12,
+  "active": true
+}
+
+### Desativar produto — execute apenas quando quiser alterar o catálogo
+DELETE {{baseUrl}}/products/{{productId}}
+Authorization: Bearer {{adminToken}}
+
+### Listar campanhas
+GET {{baseUrl}}/campaigns
+Authorization: Bearer {{adminToken}}
+
+### Criar campanha
+POST {{baseUrl}}/campaigns
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "name": "Campanha HTTP",
+  "budget_total": 500,
+  "starts_at": "2026-01-01 00:00:00",
+  "ends_at": "2030-12-31 23:59:59",
+  "status": "active"
+}
+
+### Registrar venda aprovada
+POST {{baseUrl}}/sales
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "external_id": "{{externalId}}",
+  "campaign_id": {{campaignId}},
+  "seller_id": {{sellerId}},
+  "product_id": {{saleProductId}},
+  "quantity": 2,
+  "unit_value": "49.90"
+}
+
+### Repetir a mesma venda — deve ser idempotente
+POST {{baseUrl}}/sales
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "external_id": "{{externalId}}",
+  "campaign_id": {{campaignId}},
+  "seller_id": {{sellerId}},
+  "product_id": {{saleProductId}},
+  "quantity": 2,
+  "unit_value": "49.90"
+}
+
+### Login seller
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "{{sellerEmail}}",
+  "password": "{{sellerPassword}}"
+}
+
+### Wallet do seller autenticado
+GET {{baseUrl}}/me/wallet
+Authorization: Bearer {{sellerToken}}
+
+### Seller tentando rota admin — deve retornar 403
+GET {{baseUrl}}/admin/health
+Authorization: Bearer {{sellerToken}}
+
+### Cancelar venda
+POST {{baseUrl}}/sales/{{externalId}}/cancel
+Authorization: Bearer {{adminToken}}
+
+### Repetir cancelamento — deve ser idempotente
+POST {{baseUrl}}/sales/{{externalId}}/cancel
+Authorization: Bearer {{adminToken}}
+
+### Wallet após cancelamento — saldo deve refletir o débito
+GET {{baseUrl}}/me/wallet
+Authorization: Bearer {{sellerToken}}
+
+### Exemplo de venda acima do budget
+# Use uma campanha com budget_total pequeno e um produto com pontuação maior.
+# A resposta esperada é 422 com error=insufficient_budget.
+POST {{baseUrl}}/sales
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "external_id": "budget-overflow-1001",
+  "campaign_id": {{campaignId}},
+  "seller_id": {{sellerId}},
+  "product_id": {{saleProductId}},
+  "quantity": 1000000,
+  "unit_value": "1.00"
+}
