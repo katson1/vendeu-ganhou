@@ -28,7 +28,7 @@ function NotFoundPage() {
       <section className="card area-card" aria-labelledby="not-found-title">
         <p className="eyebrow">404</p>
         <h1 id="not-found-title">Página não encontrada</h1>
-        <p className="description">Esta rota ainda não faz parte da etapa atual.</p>
+        <p className="description">A página que você tentou abrir não está disponível.</p>
         <div className="action-row">
           <button type="button" onClick={() => navigate(user.role === 'admin' ? '/admin' : '/seller')}>Voltar</button>
           <button className="secondary-button" type="button" onClick={() => { logout(); navigate('/login', { replace: true }); }}>Sair</button>

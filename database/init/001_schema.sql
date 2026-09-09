@@ -1,5 +1,5 @@
--- Vendeu, Ganhou - initial relational schema.
--- This file is executed by the official MySQL image on an empty volume.
+-- Initial schema for Vendeu, Ganhou.
+-- MySQL runs this file when the database volume is created.
 
 CREATE TABLE IF NOT EXISTS users (
     id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,

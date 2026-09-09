@@ -1,4 +1,4 @@
--- Vendeu, Ganhou - deterministic local seed.
+-- Initial local data for Vendeu, Ganhou.
 -- Passwords are bcrypt hashes. Plaintext credentials are documented in README.md
 -- for local development only.
 
